@@ -1,0 +1,19 @@
+{
+  "name": "lexclare",
+  "version": "1.0.0",
+  "description": "## Description - A simple word search web app - The essence of this project is go gain mastery and understanding, working work with APIs in creating server-side logic",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.13.6",
+    "body-parser": "^2.2.2",
+    "ejs": "^5.0.1",
+    "express": "^5.2.1",
+    "nodemon": "^3.1.14"
+  }
+}
