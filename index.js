@@ -10,28 +10,34 @@ const PORT = 3000;
 
 const API_KEY = process.env.SCH_DICT_API_KEY; 
 
+// Use middleware
+app.use(bodyParser.urlencoded({ extended: true }));
+
 app.get("/", (req, res) => {
     res.render("index.ejs"); 
 })
 
 
-app.get("/Dictionary", async (req, res) => {
+app.post("/Search", async (req, res) => {
     try {
-        const word = req.query.word; 
+        const word = req.body.word.trim(); 
 
-        if (!word || word.trim() === '') {
-            res.status(404).json({
+        if (!word) {
+            return res.status(404).json({
                 message: "No word provided, please kindly provide a word"
             })
         }
 
         const url = `https://www.dictionaryapi.com/api/v3/references/sd4/json/${word}?key=${API_KEY}`
         const response = await axios.get(url); 
-
-    
-
+        const result = response.data; 
+        console.log(result);
+        res.render("index.ejs", {lexicon: result})
     } catch(error) {
-
+        console.error("Failed to make request", error)
+        res.render("index.ejs", {
+            error:"No meaning for word"
+        });
     }
 })
 

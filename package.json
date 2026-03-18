@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "## Description - A simple word search web app - The essence of this project is go gain mastery and understanding, working work with APIs in creating server-side logic",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
