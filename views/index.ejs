@@ -26,7 +26,8 @@
                     </button>
                      <h2><%=lexicon.hw %></h2>
                 </div>
-                <p class="phonetic"><%=lexicon.pho %></p>
+                <% const phonetics ='/' + lexicon.pho + '/' %>
+                <p class="phonetic"><%=phonetics%></p>
             </header>
 
             <% const lexiconMeaning = lexicon.meaning %>
@@ -35,7 +36,6 @@
             <h4 class="pos"><%=meaning.pos%></h4>
             <ul class="definition-list">
                 <% const definitions = meaning.def %>
-                <% console .log(definitions) %>
                 <% definitions.forEach((definition) => { %> 
                 <li>
                     <p class="definition">
