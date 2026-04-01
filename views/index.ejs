@@ -49,5 +49,41 @@
         </article>
     
     <% } %>
+
+    <script>
+        // construct audio URL
+        const constructAudioURL = (value) => {
+            // get subdirectory;
+            let subdir = "";
+            
+            if (value.startsWith("bix")) {
+                subdir = "bix";
+            } else if (value.startsWith("gg")) {
+                subdir = "gg";
+            } else if (/^\d/.test(value)) {
+                subdir = "number";
+            } else {
+                subdir = value[0];
+            }
+            // build the url
+            return `https://media.merriam-webster.com/audio/prons/en/us/mp3/${subdir}/${value}.mp3`;
+        };
+
+
+        // Create method to play the pronunciation of the word
+        const pronounceWord = async () => {
+            // create audio object
+            let constructedURL = await constructAudioURL("<%=locals.lexicon.sound%>"); 
+            const audio = new Audio(constructedURL);
+
+            // create event, & add listener
+            document.querySelector('.audio-button').addEventListener('click', () => {
+	            audio.play();
+            });
+        }
+
+        pronounceWord(); 
+
+    </script>
 </body>
 </html>
