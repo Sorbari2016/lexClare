@@ -7,10 +7,47 @@
 </head>
 <body>
     <div class="container">
+    <% if (!locals.lexicon){ %>
         <form action="/Search" method="post">
             <input type="text" name="word" id="name" placeholder="Search a word or phrase">
             <button type="submit">Search</button>
         </form>
-    </div>
+    <% } else { %>
+        <form action="/Search" method="post">
+            <input type="text" name="word" id="name" placeholder="Search a word or phrase">
+            <button type="submit">Search</button>
+        </form>
+        
+        <article class="dictionary-entry">
+            <header>
+                <div class="word-header">
+                    <button type = "button" class="audio-button" aria-label="Play pronunciation">
+                        <img src="/image/volume icon.png" alt="volume icon" height="24px" width="24px">
+                    </button>
+                     <h2><%=lexicon.hw %></h2>
+                </div>
+                <p class="phonetic"><%=lexicon.pho %></p>
+            </header>
+
+            <% const lexiconMeaning = lexicon.meaning %>
+            <% lexiconMeaning.forEach((meaning) => { %> 
+            <section class="sense-group">
+            <h4 class="pos"><%=meaning.pos%></h4>
+            <ul class="definition-list">
+                <% const definitions = meaning.def %>
+                <% console .log(definitions) %>
+                <% definitions.forEach((definition) => { %> 
+                <li>
+                    <p class="definition">
+                    <%=definition %>
+                    </p>
+                </li>
+                <% }); %>
+            </ul>
+           </section>
+           <% }); %>
+        </article>
+    
+    <% } %>
 </body>
 </html>
