@@ -62,7 +62,7 @@ app.post("/Search", async (req, res) => {
         const result = response.data; 
         
         const simplifiedData = simplifyResult(result, word); 
-        console.log(data); 
+        
         res.render("index.ejs", {lexicon: simplifiedData})
     } catch(error) {
         console.error("Failed to make request", error)
