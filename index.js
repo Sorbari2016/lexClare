@@ -3,10 +3,12 @@ import axios from "axios";
 import bodyParser from "body-parser";
 import dotenv from "dotenv"; 
 
-dotenv.config();
 
 const app = express();
 const PORT = 3000; 
+
+// Set dotenv to process env variable
+dotenv.config();
 
 const API_KEY = process.env.SCH_DICT_API_KEY; 
 
@@ -59,9 +61,9 @@ app.post("/Search", async (req, res) => {
         const response = await axios.get(url); 
         const result = response.data; 
         
-        const data = simplifyResult(result, word); 
+        const simplifiedData = simplifyResult(result, word); 
         console.log(data); 
-        res.render("index.ejs", {lexicon: data})
+        res.render("index.ejs", {lexicon: simplifiedData})
     } catch(error) {
         console.error("Failed to make request", error)
         res.render("index.ejs", {
