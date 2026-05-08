@@ -3,12 +3,15 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 body {
   background-color: #0f172a;
-  color: #e2e8f0; 
+  color: #e2e8f0;
   display: flex;
   justify-content: center;
   padding: 40px 20px;
@@ -65,7 +68,7 @@ button:hover {
   border: 1px solid #1e293b;
   border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
 .word-header {
@@ -97,7 +100,6 @@ button:hover {
 .audio-button:hover {
   background-color: #334155;
 }
-
 
 .sense-group {
   margin-top: 20px;
