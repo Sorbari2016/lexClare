@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Simple Dictionary</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/index.css">
+</head>
+<body>
+
+    <header>
+
+        <% if (headerContent === "button") { %>
+            <div class="auth-btns">
+                <a href="/login" class="btn btn-login">Login</a>
+                <a href="/signup" class="btn btn-signup">Sign up</a>
+            </div>
+        <% } else { %>
+            <p><%=headerContent %> </p>
+        <% } %>
+    </header>
+
