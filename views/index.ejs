@@ -43,48 +43,6 @@
         </article>
     
     <% } %>
+    </div>
 
-    <script>
-        // construct audio URL
-        const constructAudioURL = (value) => {
-            // get subdirectory;
-            let subdir = "";
-            
-            if (value.startsWith("bix")) {
-                subdir = "bix";
-            } else if (value.startsWith("gg")) {
-                subdir = "gg";
-            } else if (/^\d/.test(value)) {
-                subdir = "number";
-            } else {
-                subdir = value[0];
-            }
-            // build the url
-            return `https://media.merriam-webster.com/audio/prons/en/us/mp3/${subdir}/${value}.mp3`;
-        };
-
-        // Wrap data a string.
-        const lexicon = JSON.parse('<%- JSON.stringify(locals.lexicon || null) %>');
-
-        // Create method to play the pronunciation of the word
-        const pronounceWord = async () => {
-            // when user hasnt searched anything
-            if (!lexicon) {
-                return;
-            }
-
-            // create audio object
-            const constructedURL = await constructAudioURL(lexicon.sound)
-            const audio = new Audio(constructedURL);
-
-            // create event, & add listener
-            document.querySelector('.audio-button').addEventListener('click', () => {
-	            audio.play();
-            });
-        }
-
-        pronounceWord(); 
-
-    </script>
-</body>
-</html>
+    <%-include("./partials/footer") %>
