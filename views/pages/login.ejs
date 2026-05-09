@@ -1,22 +1,14 @@
 <%- include("./pages/header", { headerContent: "Login" }) %>
 
 <main class="auth-page">
-
     <section class="auth-card">
-
         <div class="auth-title">
             <h1>Login</h1>
         </div>
-
         <div class="auth-content">
-
-            <!-- LEFT -->
             <div class="auth-social">
-
                 <h3>Login with your social network</h3>
-
                 <div class="social-buttons">
-
                     <a href="/auth/facebook" class="social-btn">
                          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/facebook/facebook-original.svg"/>
                     </a>
@@ -25,41 +17,31 @@
                     </a>
                 </div>
             </div>
-
             <div class="auth-form-section">
-
                 <h3>Login with your email address</h3>
-
                 <form action="/login" method="post" class="auth-form">
-
                     <input
                         type="email"
                         name="email"
                         placeholder="Email *"
                         required
                     >
-
                     <input
                         type="password"
                         name="password"
                         placeholder="Password *"
                         required
                     >
-
                     <a href="/recover" class="auth-link">
                         Forget your password ?
                     </a>
-
                     <button type="submit">
                         Login
                     </button>
-
                     <a href="/register" class="auth-link">
                         Don't have account yet
                     </a>
-
                 </form>
-
             </div>
         </div>
     </section>
