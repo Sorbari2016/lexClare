@@ -1,0 +1,30 @@
+<%- include("./partials/header", { headerContent: "Find my account" }) %>
+
+<main class="recover-page">
+    <section class="recover-card">
+        <div class="auth-title">
+            <h1>Find my account</h1>
+        </div>
+        <div class="recover-content">
+            <p class="recover-text">
+                Please enter your email address to reset your password:
+            </p>
+            <form action="/recover" method="post" class="recover-form">
+                <label for="email">
+                    Email: *
+                </label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                >
+                <button type="submit">
+                    Reset password
+                </button>
+            </form>
+        </div>
+    </section>
+</main>
+
+<%- include("./partials/footer") %>
