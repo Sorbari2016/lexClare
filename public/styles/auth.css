@@ -30,18 +30,7 @@ body {
 .recover-card {
   width: 100%;
   max-width: 1000px;
-  border: 1px solid #d1d5db;
   background-color: #020617;
-}
-
-.auth-title {
-  border-bottom: 1px solid #d1d5db;
-  padding: 24px;
-  text-align: center;
-}
-
-.auth-title h1 {
-  font-size: 32px;
 }
 
 .auth-content {
@@ -51,8 +40,8 @@ body {
   padding: 50px;
 }
 
-.auth-social h3,
-.auth-form-section h3 {
+.auth-social h4,
+.auth-form-section h4 {
   margin-bottom: 20px;
   font-size: 18px;
   font-weight: 600;
@@ -64,12 +53,12 @@ body {
 }
 
 .social-btn {
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 1px solid white;
+  border-radius: 10px;
   text-decoration: none;
   color: white;
   transition: 0.2s ease;

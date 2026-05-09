@@ -14,9 +14,7 @@ body {
 body {
   background-color: #0f172a;
   color: #e2e8f0;
-
   font-family: system-ui, sans-serif;
-
   display: flex;
   flex-direction: column;
 }
@@ -24,8 +22,6 @@ body {
 /* Header, main */
 .main-header {
   padding: 20px 40px;
-  display: flex;
-  justify-content: flex-end;
 }
 
 /* Auth buttons */
