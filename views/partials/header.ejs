@@ -8,16 +8,16 @@
     <link rel="stylesheet" href="/styles/auth.css">
 </head>
 <body>
+    <% const alignment = headerContent === "button" ? "flex-end": "center";   %>
 
-    <header class="main-header">
-
+    <header class="main-header" style="display: flex; justify-content: <%=alignment %>;">
         <% if (headerContent === "button") { %>
             <div class="auth-btns">
                 <a href="/login" class="btn btn-login" role="button">Login</a>
                 <a href="/signup" class="btn btn-signup" role="button">Sign up</a>
             </div>
         <% } else { %>
-            <p><%=headerContent %> </p>
+            <h2><%=headerContent %> </h2>
         <% } %>
     </header>
 

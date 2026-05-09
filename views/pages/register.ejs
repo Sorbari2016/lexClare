@@ -1,13 +1,10 @@
-<%- include("../partials/header", { headerContent: "Sign up" }) %>
+<%- include("../partials/header", {headerContent: "Sign up"}) %>
 
 <main class="auth-page">
     <section class="auth-card">
-        <div class="auth-title">
-            <h1>Sign up</h1>
-        </div>
         <div class="auth-content">
             <div class="auth-social">
-                <h3>Sign up with your social network</h3>
+                <h4>Sign up with your social network</h4>
                 <div class="social-buttons">
                     <a href="/auth/facebook" class="social-btn">
                         <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/facebook/facebook-original.svg"/>
@@ -18,7 +15,7 @@
                 </div>
             </div>
             <div class="auth-form-section">
-                <h3>Sign up with your email</h3>
+                <h4>Sign up with your email</h4>
                 <form action="/register" method="post" class="auth-form">
                     <input
                         type="email"
