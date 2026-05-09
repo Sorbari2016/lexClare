@@ -2,7 +2,7 @@
 CREATE DATABASE dictionary; 
 
 -- Create two tables, user & search_history
-CREATE TABLE user (
+CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     first_name TEXT NOT NULL, 
     last_name TEXT NOT NULL
