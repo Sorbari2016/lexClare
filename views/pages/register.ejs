@@ -1,0 +1,69 @@
+<%- include("./partials/header", { headerContent: "Sign up" }) %>
+
+<main class="auth-page">
+    <section class="auth-card">
+        <div class="auth-title">
+            <h1>Sign up</h1>
+        </div>
+        <div class="auth-content">
+            <div class="auth-social">
+                <h3>Sign up with your social network</h3>
+                <div class="social-buttons">
+                    <a href="/auth/facebook" class="social-btn">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/facebook/facebook-original.svg"/>
+                    </a>
+                    <a href="/auth/google" class="social-btn">
+                        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg" />
+                    </a>
+                </div>
+            </div>
+            <div class="auth-form-section">
+                <h3>Sign up with your email</h3>
+                <form action="/register" method="post" class="auth-form">
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="Email *"
+                        required
+                    >
+                    <div class="double-input">
+                        <input
+                            type="text"
+                            name="firstName"
+                            placeholder="First name *"
+                            required
+                        >
+                        <input
+                            type="text"
+                            name="lastName"
+                            placeholder="Last name *"  
+                            required
+                        >
+                    </div>
+                    <div class="double-input">
+                        <input
+                            type="password"
+                            name="password"
+                            placeholder="Password *"
+                            required
+                        >
+                        <input
+                            type="password"
+                            name="confirmPassword"
+                            placeholder="Confirm Password *"
+                            required
+                        >
+                    </div>
+                    <button type="submit">
+                        Sign up
+                    </button>
+                    <a href="/login" class="auth-link">
+                        Have an account already
+                    </a>
+                </form>
+            </div>
+        </div>
+    </section>
+</main>
+
+<%- include("./partials/footer") %>
