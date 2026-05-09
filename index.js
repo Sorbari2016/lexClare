@@ -2,6 +2,7 @@ import express from "express";
 import axios from "axios";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
+import pg from "pg";
 
 dotenv.config();
 
@@ -15,6 +16,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Use static files
 app.use(express.static("public"));
+
+// Set up database
+const db = pg.Client({
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
+});
+
+// Establish connection with postgres server
+db.connect();
 
 // GET route for homepage
 app.get("/", (req, res) => {
