@@ -36,6 +36,11 @@ app.get("/recover", (req, res) => {
   res.render("pages/recover.ejs");
 });
 
+// GET redirect route for sign up
+app.get("/register", (req, res) => {
+  res.redirect("signup");
+});
+
 // Create method to get only data needed
 const simplifyResult = (data, query) => {
   let escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
