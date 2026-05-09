@@ -1,74 +1,133 @@
-/* Reset & base */
+/* Main reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family:
-    system-ui,
-    -apple-system,
-    sans-serif;
 }
 
+html,
+body {
+  height: 100%;
+}
+
+/* Body structure */
 body {
   background-color: #0f172a;
   color: #e2e8f0;
+
+  font-family: system-ui, sans-serif;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header, main */
+.main-header {
+  padding: 20px 40px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Auth buttons */
+.auth-btns {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* Buttons */
+.btn {
+  text-decoration: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: 0.2s ease;
+}
+
+.btn-login {
+  background-color: transparent;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+}
+
+.btn-login:hover {
+  background-color: #1e293b;
+}
+
+.btn-signup {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.btn-signup:hover {
+  background-color: #2563eb;
+}
+
+/* Page Content */
+.page-content {
+  flex: 1;
   display: flex;
   justify-content: center;
-  padding: 40px 20px;
 }
 
 /* Container */
 .container {
   width: 100%;
   max-width: 700px;
+  padding: 20px;
+}
+
+.container.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Search form */
-form {
+.search {
+  width: 100%;
   display: flex;
   gap: 10px;
-  margin-bottom: 25px;
 }
 
-input[type="text"] {
+.search input {
   flex: 1;
-  padding: 12px 14px;
-  border-radius: 10px;
+  padding: 14px;
   border: 1px solid #1e293b;
+  border-radius: 10px;
   background-color: #020617;
   color: #e2e8f0;
   outline: none;
 }
 
-input::placeholder {
+.search input::placeholder {
   color: #64748b;
 }
 
-input:focus {
-  outline: 2px solid #3b82f6;
-}
-
-button {
-  padding: 12px 18px;
-  border-radius: 10px;
+/* Search button */
+.search button {
+  padding: 14px 18px;
   border: none;
+  border-radius: 10px;
   background-color: #3b82f6;
   color: white;
   cursor: pointer;
   transition: 0.2s ease;
 }
 
-button:hover {
+.search button:hover {
   background-color: #2563eb;
 }
 
-/* Dictionary entry card */
+/* Dictionary Card */
 .dictionary-entry {
+  margin-top: 30px;
   background-color: #020617;
   border: 1px solid #1e293b;
   border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
 }
 
 .word-header {
@@ -78,12 +137,12 @@ button:hover {
 }
 
 .word-header h2 {
-  font-size: 28px;
-  font-weight: 600;
+  font-size: 32px;
+  font-weight: 700;
 }
 
 .phonetic {
-  margin-top: 5px;
+  margin-top: 8px;
   color: #38bdf8;
   font-style: italic;
 }
@@ -91,8 +150,8 @@ button:hover {
 .audio-button {
   background-color: #1e293b;
   border: none;
-  padding: 8px;
   border-radius: 50%;
+  padding: 10px;
   cursor: pointer;
   transition: 0.2s ease;
 }
@@ -102,27 +161,34 @@ button:hover {
 }
 
 .sense-group {
-  margin-top: 20px;
-}
-
-.pos {
-  text-transform: uppercase;
-  font-size: 14px;
-  color: #94a3b8;
-  margin-bottom: 8px;
-}
-
-.definition-list {
-  padding-left: 18px;
-}
-
-.definition {
-  margin-bottom: 8px;
-  line-height: 1.6;
-  color: #cbd5f5;
+  margin-top: 24px;
 }
 
 .sense-group + .sense-group {
   border-top: 1px solid #1e293b;
-  padding-top: 15px;
+  padding-top: 20px;
+}
+
+.pos {
+  margin-bottom: 10px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.definition-list {
+  padding-left: 20px;
+}
+
+.definition {
+  line-height: 1.7;
+  margin-bottom: 10px;
+  color: #cbd5e1;
+}
+
+/* Footer  */
+.footer {
+  padding: 20px;
+  text-align: center;
+  color: #64748b;
 }
