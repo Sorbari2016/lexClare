@@ -17,8 +17,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Use static files
 app.use(express.static("public"));
 
+// Tell express to use ejs
+app.set("view engine", "ejs");
+
 // Set up database
-const db = pg.Client({
+const db = new pg.Client({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
@@ -31,12 +34,15 @@ db.connect();
 
 // GET route for homepage
 app.get("/", (req, res) => {
-  res.render("index.ejs");
+  res.render("index.ejs", { user: null });
 });
 
 // GET route for register page
 app.get("/signup", (req, res) => {
-  res.render("pages/register.ejs");
+  res.render("pages/register.ejs", {
+    message: "",
+    formData: {},
+  });
 });
 
 // GET route for the login page
@@ -52,6 +58,51 @@ app.get("/recover", (req, res) => {
 // GET redirect route for sign up
 app.get("/register", (req, res) => {
   res.redirect("signup");
+});
+
+// POST route for sign up
+app.post("/register", async (req, res) => {
+  const { email, firstName, lastName, password, confirmPassword } = req.body;
+
+  // We first check if the user is already exists
+  try {
+    const checkResult = await db.query(
+      `SELECT * FROM users WHERE email = $1;`,
+      [email],
+    );
+
+    if (checkResult.rows.length > 0) {
+      return res.render("pages/register.ejs", {
+        message: "User already exists, Try loggin in",
+        formData: {},
+      });
+    }
+
+    // Make sure the passwords match
+    if (password !== confirmPassword) {
+      // Stop here, if password mismatch
+      return res.render("pages/register.ejs", {
+        message: "Password do not match",
+        formData: { email, firstName, lastName },
+      });
+    }
+
+    const result = await db.query(
+      `
+      INSERT INTO users (first_name, last_name, email, password)
+      VALUES ($1, $2, $3, $4) RETURNING *; 
+      `,
+      [firstName, lastName, email, password],
+    );
+
+    const user = result.rows[0];
+    console.log(user);
+
+    res.render("index.ejs", { user: user });
+  } catch (err) {
+    console.error("Database Error:", err);
+    res.status(500).send("An internal error occurred.");
+  }
 });
 
 // Create method to get only data needed

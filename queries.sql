@@ -17,3 +17,13 @@ CREATE TABLE search_history (
     user_id INTEGER REFERENCES user(id) ON DELETE CASCADE
 );
 
+
+-- Create a user record
+INSERT INTO users (first_name, last_name, email, password) 
+VALUES ('Treasure', 'Barinaada', 'treasure@gmail.com', 000000); 
+
+-- Retrieve the record for a user using their
+SELECT * 
+FROM users 
+WHERE id = 2;
+
