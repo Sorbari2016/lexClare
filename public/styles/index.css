@@ -56,6 +56,9 @@ body {
 
 .btn-profile {
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  padding: 10px 10px;
 }
 
 .btn-signup {
@@ -65,6 +68,11 @@ body {
 
 .btn-signup:hover {
   background-color: #2563eb;
+}
+
+.profile-btn img {
+  width: 15px;
+  height: 15px;
 }
 
 /* Page Content */
