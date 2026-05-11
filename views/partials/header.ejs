@@ -11,7 +11,14 @@
     <% const alignment = headerContent === "button" ? "flex-end": "center";   %>
 
     <header class="main-header" style="display: flex; justify-content: <%=alignment %>;">
-        <% if (headerContent === "button") { %>
+        <% if (headerContent === "button" && user) { %>
+            <% const username = locals.user.first_name + " " + locals.user.last_name %>
+        
+            <div class="profile-btn">
+                <img src="image/user.png" alt="profile icon">
+                <a href="/profile" class="btn btn-profile" role="button"><%=username %></a>
+            </div>
+        <% } else if (headerContent === "button") { %>
             <div class="auth-btns">
                 <a href="/login" class="btn btn-login" role="button">Login</a>
                 <a href="/signup" class="btn btn-signup" role="button">Sign up</a>

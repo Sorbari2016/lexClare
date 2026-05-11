@@ -25,7 +25,8 @@ body {
 }
 
 /* Auth buttons */
-.auth-btns {
+.auth-btns,
+.btn-profile {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
@@ -41,14 +42,20 @@ body {
   transition: 0.2s ease;
 }
 
-.btn-login {
+.btn-login,
+.btn-profile {
   background-color: transparent;
   border: 1px solid #334155;
   color: #e2e8f0;
 }
 
-.btn-login:hover {
+.btn-login:hover,
+.btn-profile:hover {
   background-color: #1e293b;
+}
+
+.btn-profile {
+  font-weight: 700;
 }
 
 .btn-signup {

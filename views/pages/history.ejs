@@ -1,0 +1,86 @@
+<%- include("./partials/header", { headerContent: "button" }) %>
+
+<main class="page-content">
+  <div class="container <%= !locals.lexicon ? 'centered' : '' %>">
+    <form action="/Search" method="post" class="search">
+      <input
+        type="text"
+        name="word"
+        id="name"
+        placeholder="Search a word or phrase"
+      >
+      <button type="submit">Search</button>
+    </form>
+
+    <% if (!locals.lexicon && recentWords?.length) { %>
+
+      <section class="history-section">
+        <p class="history-title">
+          You recently searched for the following words
+        </p>
+        <div class="history-box">
+
+          <% recentWords.forEach((word) => { %>
+
+            <a
+              href="/search?q=<%= word %>"
+              class="history-word"
+            >
+              <%= word %>
+            </a>
+
+          <% }) %>
+        </div>
+      </section>
+    <% } %>
+
+    <% if (locals.lexicon) { %>
+
+      <article class="dictionary-entry">
+        <header class="entry-header">
+          <div class="word-header">
+            <button
+              type="button"
+              class="audio-button"
+              aria-label="Play pronunciation"
+            >
+              <img
+                src="/image/volume icon.png"
+                alt="volume icon"
+                height="24"
+                width="24"
+              >
+            </button>
+            <h2><%= lexicon.hw %></h2>
+          </div>
+          <% const phonetics =
+            lexicon.pho === "N/A"
+            ? lexicon.pho
+            : "/" + lexicon.pho + "/"
+          %>
+          <p class="phonetic">
+            <%= phonetics %>
+          </p>
+        </header>
+        <% lexicon.meaning.forEach((meaning) => { %>
+          <section class="sense-group">
+            <h4 class="pos">
+              <%= meaning.pos %>
+            </h4>
+            <ul class="definition-list">
+              <% meaning.def.forEach((definition) => { %>
+                <li>
+                  <p class="definition">
+                    <%= definition %>
+                  </p>
+                </li>
+              <% }) %>
+            </ul>
+          </section>
+        <% }) %>
+      </article>
+    <% } %>
+  </div>
+</main>
+
+<%- include("./partials/footer") %>

@@ -20,6 +20,7 @@
                     <input
                         type="email"
                         name="email"
+                        value="<%=formData.email || '' %>"
                         placeholder="Email *"
                         required
                     >
@@ -27,12 +28,14 @@
                         <input
                             type="text"
                             name="firstName"
+                            value="<%=formData.firstName || '' %>"
                             placeholder="First name *"
                             required
                         >
                         <input
                             type="text"
                             name="lastName"
+                            value="<%=formData.lastName || '' %>"
                             placeholder="Last name *"  
                             required
                         >
@@ -51,6 +54,7 @@
                             required
                         >
                     </div>
+                    <small class="message"><%=locals.message%></small>
                     <button type="submit">
                         Sign up
                     </button>

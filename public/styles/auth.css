@@ -142,6 +142,12 @@ button:hover {
   color: #d1d5db;
 }
 
+/* message text */
+small {
+  text-align: center;
+  color: #ffda30;
+}
+
 /* Smaller screens */
 @media (max-width: 768px) {
   .auth-content {
