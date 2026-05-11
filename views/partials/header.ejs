@@ -12,11 +12,24 @@
 
     <header class="main-header" style="display: flex; justify-content: <%=alignment %>;">
         <% if (headerContent === "button" && user) { %>
-            <% const username = locals.user.first_name + " " + locals.user.last_name %>
-        
+            <%
+            // Create method to convert searched word to title or proper case
+            const toTitleCase = (str) => {
+                return str.replace(
+                    /\w\S*/g,
+                    text => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
+                    );
+                };
+            
+            const username = 
+                toTitleCase(user.first_name) + " " + toTitleCase(locals.user.last_name);            
+            %>
+    
             <div class="profile-btn">
-                <img src="image/user.png" alt="profile icon">
-                <a href="/profile" class="btn btn-profile" role="button"><%=username %></a>
+                <a href="/profile" class="btn btn-profile" role="button">
+                    <img src="image/user.png" alt="profile icon">
+                    <%=username %>
+                </a>
             </div>
         <% } else if (headerContent === "button") { %>
             <div class="auth-btns">

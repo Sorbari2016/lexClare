@@ -3,7 +3,9 @@ import axios from "axios";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import pg from "pg";
+import session from "express-session";
 
+// Configure dotenv
 dotenv.config();
 
 const app = express();
@@ -20,6 +22,20 @@ app.use(express.static("public"));
 // Tell express to use ejs
 app.set("view engine", "ejs");
 
+// Set up a session
+app.use(
+  session({
+    secret: process.env.SESSION_KEY,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    },
+  }),
+);
+
 // Set up database
 const db = new pg.Client({
   user: process.env.DB_USER,
@@ -34,7 +50,8 @@ db.connect();
 
 // GET route for homepage
 app.get("/", (req, res) => {
-  res.render("index.ejs", { user: null });
+  const user = req.session.user || null;
+  res.render("index.ejs", { user: user });
 });
 
 // GET route for register page
@@ -98,7 +115,10 @@ app.post("/register", async (req, res) => {
     const user = result.rows[0];
     console.log(user);
 
-    res.render("index.ejs", { user: user });
+    // save user to session
+    req.session.user = user;
+
+    res.redirect("/");
   } catch (err) {
     console.error("Database Error:", err);
     res.status(500).send("An internal error occurred.");
