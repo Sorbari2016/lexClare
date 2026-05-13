@@ -167,6 +167,23 @@ app.post("/login", async (req, res) => {
   }
 });
 
+// Create a get route to log out
+app.get("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    // Use session destroy to complete remove user
+    if (err) {
+      console.log("Logout error: ", err);
+      res.redirect("/");
+    }
+
+    // Clear cookie on the browser side
+    res.clearCookie("connect.sid");
+
+    // Redirect to homepage
+    res.redirect("/");
+  });
+});
+
 // Create method to get only data needed
 const simplifyResult = (data, query) => {
   let escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
