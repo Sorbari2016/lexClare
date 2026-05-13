@@ -186,6 +186,30 @@ app.get("/logout", (req, res) => {
   });
 });
 
+// Create GET route for profile page
+app.get("/profile", async (req, res) => {
+  // Ensure if user isnt logged in, send to login
+  if (!req.session.user) {
+    return res.redirect("/login");
+  }
+  try {
+    // Get the latest data from DB using the session ID
+    const result = await db.query(
+      `SELECT *
+     FROM users
+     WHERE id = $1
+     `,
+      [req.session.user.id],
+    );
+
+    const user = result.rows[0];
+    console.log(user);
+    res.render("pages/profile.ejs", { user: user });
+  } catch (err) {
+    console.error("Database Error: ", err);
+  }
+});
+
 // Create method to get only data needed
 const simplifyResult = (data, query) => {
   let escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
