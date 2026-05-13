@@ -25,11 +25,15 @@
                 toTitleCase(user.first_name) + " " + toTitleCase(locals.user.last_name);            
             %>
     
-            <div class="profile-btn">
-                <a href="/profile" class="btn btn-profile" role="button">
+            <div class="profile-btn dropdown">
+                <a class="btn btn-profile" role="button">
                     <img src="image/user.png" alt="profile icon">
-                    <%=username %>
+                    <%=username %> ⏷
                 </a>
+                <ul class="dropdown-menu">
+                    <li><a href="/profile"class="dropdown-item">Profile</a></li>
+                    <li><a href="/"class="dropdown-item">Logout</a></li>
+                </ul>
             </div>
         <% } else if (headerContent === "button") { %>
             <div class="auth-btns">

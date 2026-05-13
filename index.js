@@ -125,6 +125,48 @@ app.post("/register", async (req, res) => {
   }
 });
 
+// Create a post route for login
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const result = await db.query(
+      `SELECT * 
+    FROM users
+    WHERE email = $1
+    `,
+      [email],
+    );
+
+    // Check if user isn't registered yet
+    if (result.rows.length === 0) {
+      return res.render("pages/login.ejs", {
+        message: "User do not exists, Try signing up",
+        formData: {},
+      });
+    }
+
+    // Check if password mismatch
+    const user = result.rows[0];
+    console.log(user);
+    const storedPassword = user.password;
+    if (password !== storedPassword) {
+      return res.render("pages/login.ejs", {
+        message: "Incorrect password, try login in again",
+        formData: { email },
+      });
+    }
+    // Save user into session
+    req.session.user = user;
+
+    // Redirect to homepage
+    res.redirect("/");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("An internal error occurred.");
+  }
+});
+
 // Create method to get only data needed
 const simplifyResult = (data, query) => {
   let escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
