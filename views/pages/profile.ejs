@@ -1,0 +1,98 @@
+<%- include("../partials/header", {headerContent: "My profile"}) %>
+
+<main class="profile-page">
+  <section class="profile-card">
+
+    <div class="profile-header">
+      <h4>About me</h4>
+      <p>Manage your personal information</p>
+    </div>
+    <div class="avatar-section">
+      <div class="avatar-wrapper">
+        <img
+          src="<%= user.profile_image || '/assets/default-avatar.png' %>"
+          alt="Profile image"
+          class="avatar"
+        >
+      </div>
+      <label for="profile_image" class="upload-btn">
+        Change photo
+      </label>
+
+      <input
+        type="file"
+        name="profile_image"
+        id="profile_image"
+        hidden
+      >
+
+    </div>
+
+    <form
+      action="/profile?_method=PUT"
+      method="POST"
+      class="profile-form"
+      enctype="multipart/form-data"
+    >
+
+      <div class="form-group">
+        <label for="first_name">
+          First name
+          <span>*</span>
+        </label>
+
+        <input
+          type="text"
+          id="firstName"
+          name="firstName"
+          value="<%= user.first_name %>"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="last_name">
+          Last name
+          <span>*</span>
+        </label>
+
+        <input
+          type="text"
+          id="lastName"
+          name="lastName"
+          value="<%= user.last_name %>"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="email">
+          Email
+          <span>*</span>
+        </label>
+
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value="<%= user.email %>"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <a href="/recover" class="password-link">
+          Change password
+        </a>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn primary">
+          Save changes
+        </button>
+      </div>
+    </form>
+  </section>
+</main>
+
+<%- include("../partials/footer") %>

@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import pg from "pg";
 import session from "express-session";
+import methodOverride from "method-override";
 
 // Configure dotenv
 dotenv.config();
@@ -13,8 +14,9 @@ const PORT = 3000;
 
 const API_KEY = process.env.SCH_DICT_API_KEY;
 
-// Use middleware
+// Use middlewares, body parser & method override
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(methodOverride("_method"));
 
 // Use static files
 app.use(express.static("public"));
