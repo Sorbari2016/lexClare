@@ -16,7 +16,26 @@ body {
   display: flex;
   flex-direction: column;
 }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: #050816;
+  color: white;
+  font-family: system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Auth & Recover page */
 .auth-page,
 .recover-page {
   flex: 1;
@@ -160,11 +179,11 @@ small {
 .dropdown-menu {
   display: none;
   position: absolute;
-  background-color: #3b82f6;
+  background: var(--surface);
   margin: 0;
   padding: 0;
   list-style: none;
-  min-width: 160px;
+  min-width: 180px;
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
 }
