@@ -210,6 +210,16 @@ app.get("/profile", async (req, res) => {
   }
 });
 
+// Create GET route for change password page
+app.get("/change_password", (req, res) => {
+  // Ensure if user isnt logged in, send to login
+  if (!req.session.user) {
+    return res.redirect("/login");
+  }
+
+  res.render("pages/password.ejs");
+});
+
 // Create method to get only data needed
 const simplifyResult = (data, query) => {
   let escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

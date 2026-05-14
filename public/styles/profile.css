@@ -1,10 +1,12 @@
 /* Profile page */
-.profile-page {
+.profile-page,
+.password-page {
   padding: 3rem 1rem;
 }
 
 /* Card */
-.profile-card {
+.profile-card,
+.password-card {
   width: 100%;
   max-width: 700px;
   margin: auto;
@@ -15,16 +17,18 @@
 }
 
 /* Profile header */
-.profile-header {
+.profile-header,
+.password-header {
   margin-bottom: 2rem;
 }
 
-.profile-header h1 {
-  font-size: 1.4rem;
+.profile-header h4,
+.password-header h4 {
   margin-bottom: 0.3rem;
 }
 
-.profile-header p {
+.profile-header p,
+.password-header p {
   color: var(--muted);
   font-size: 0.9rem;
 }
@@ -71,7 +75,8 @@
 }
 
 /* Profile form */
-.profile-form {
+.profile-form,
+.password-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -95,7 +100,8 @@
 }
 
 /* Input */
-.profile-form input {
+.profile-form input,
+.password-form input {
   width: 100%;
   background: var(--bg);
   border: 1px solid var(--border);
@@ -116,7 +122,8 @@
 }
 
 /* Focus */
-.profile-form input:focus {
+.profile-form input:focus,
+.password-form input:focus {
   outline: none;
   border-color: var(--accent);
 }
@@ -137,13 +144,13 @@
 .form-actions {
   display: flex;
   justify-content: flex-end;
-
   margin-top: 1rem;
 }
 
 /* Mobile */
 @media (max-width: 600px) {
-  .profile-card {
+  .profile-card,
+  .password-card {
     padding: 1.2rem;
   }
 
