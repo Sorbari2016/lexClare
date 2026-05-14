@@ -38,3 +38,12 @@ CREATE TABLE profile_pictures(
     user_id INTEGER UNIQUE REFERENCES users(id) ON DELETE CASCADE
 ); 
 
+
+-- Update a user's details
+UPDATE users 
+SET first_name = 'Blessing', 
+    last_name = 'Leh'
+    email = 'blesingleh@gmail.com'
+WHERE id = 5
+RETURNING * 
+
