@@ -27,3 +27,14 @@ SELECT *
 FROM users 
 WHERE id = 2;
 
+-- Create new table to handle profile pictures
+CREATE TABLE profile_pictures(
+    picture_id SERIAL PRIMARY KEY, 
+    file_path TEXT NOT NULL, 
+    file_name TEXT NOT NULL, 
+    mime_type TEXT, 
+    size_bytes INTEGER,  -- For validation
+    uploaded_at TIMESTAMP DEFAULT NOW(), 
+    user_id INTEGER UNIQUE REFERENCES users(id) ON DELETE CASCADE
+); 
+
