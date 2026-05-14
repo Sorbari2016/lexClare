@@ -223,8 +223,7 @@ app.get("/change_password", async (req, res) => {
     return res.redirect("/login");
   }
 
-  // Get current Usertry {
-  // Get the latest data from DB using the session ID
+  // Get current user using the session ID
   const result = await db.query(
     `SELECT *
      FROM users
@@ -235,10 +234,10 @@ app.get("/change_password", async (req, res) => {
 
   const user = result.rows[0];
 
-  res.render("pages/password.ejs", { user: user });
+  res.render("pages/password.ejs", { user: user, message: "" });
 });
 
-// Create POST route to update a user details
+// Create PUT route to update a user details
 app.put("/users/:id", upload.single("profile_picture"), async (req, res) => {
   // Ensure if user isnt logged in, send to login
   if (!req.session.user) {
@@ -268,6 +267,68 @@ app.put("/users/:id", upload.single("profile_picture"), async (req, res) => {
     res.redirect("/");
   } catch (error) {
     console.log("Database Error: ", error);
+  }
+});
+
+// Create PUT route to update user password
+app.put("/users/:id/change_password", async (req, res) => {
+  // Ensure if user isnt logged in, send to login
+  if (!req.session.user) {
+    return res.redirect("/login");
+  }
+
+  const { currentPassword, newPassword, confirmedNewPassword } = req.body;
+  const userId = parseInt(req.params.id);
+
+  // Get password stored
+  try {
+    const result = await db.query("SELECT * FROM users WHERE id = $1", [
+      req.session.user.id,
+    ]);
+
+    const user = result.rows[0];
+    const storedPassword = user.password;
+
+    // Check if the current password is correct
+    if (currentPassword !== storedPassword) {
+      return res.render("pages/password.ejs", {
+        user: user,
+        message: "The current password entered is incorrect",
+      });
+    }
+
+    // Check if the new password & confirm new password are the same
+    if (newPassword !== confirmedNewPassword) {
+      return res.render("pages/password.ejs", {
+        user: user,
+        message: "Passwords do not match",
+      });
+    }
+
+    // Check if the new password is the same as the stored one
+    if (newPassword === storedPassword) {
+      return res.render("pages/password.ejs", {
+        user: user,
+        message: "New password must be different from your current password",
+      });
+    }
+
+    // update user password
+    await db.query("UPDATE users SET password = $1 WHERE id = $2;", [
+      newPassword,
+      userId,
+    ]);
+
+    // save user in session
+    req.session.user = user;
+
+    res.render("pages/password.ejs", {
+      user: user,
+      message: "Password successfully changed !",
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("An internal error occurred.");
   }
 });
 
