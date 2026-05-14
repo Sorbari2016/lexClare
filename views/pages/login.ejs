@@ -20,6 +20,7 @@
                     <input
                         type="email"
                         name="email"
+                        value="<%=formData.email || '' %>"
                         placeholder="Email *"
                         required
                     >
@@ -32,6 +33,7 @@
                     <a href="/recover" class="auth-link">
                         Forget your password ?
                     </a>
+                    <small class="message"><%=locals.message%></small>
                     <button type="submit">
                         Login
                     </button>

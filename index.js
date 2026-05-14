@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import pg from "pg";
 import session from "express-session";
 import methodOverride from "method-override";
+import multer from "multer"; // important for handle file uploads
 
 // Configure dotenv
 dotenv.config();
@@ -13,6 +14,8 @@ const app = express();
 const PORT = 3000;
 
 const API_KEY = process.env.SCH_DICT_API_KEY;
+
+const upload = multer({ dest: "uploads/" }); // Tells multer where to temporarily store files
 
 // Use middlewares, body parser & method override
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -218,6 +221,39 @@ app.get("/change_password", (req, res) => {
   }
 
   res.render("pages/password.ejs");
+});
+
+// Create POST route to update a user details
+app.put("/users/:id", upload.single("profile_picture"), async (req, res) => {
+  // Ensure if user isnt logged in, send to login
+  if (!req.session.user) {
+    return res.redirect("/login");
+  }
+
+  const userId = parseInt(req.params.id);
+  const { firstName, lastName, email } = req.body;
+
+  // Update the user details
+  try {
+    const result = await db.query(
+      `UPDATE users
+      SET first_name = $1,
+          last_name = $2,
+          email = $3
+          WHERE id = $4
+          RETURNING *`,
+      [firstName, lastName, email, userId],
+    );
+
+    const user = result.rows[0];
+    console.log(user);
+    // save updated user into session
+    req.session.user = user;
+
+    res.redirect("/");
+  } catch (error) {
+    console.log("Database Error: ", error);
+  }
 });
 
 // Create method to get only data needed
