@@ -69,7 +69,10 @@ app.get("/signup", (req, res) => {
 
 // GET route for the login page
 app.get("/login", (req, res) => {
-  res.render("pages/login.ejs");
+  res.render("pages/login.ejs", {
+    message: "",
+    formData: {},
+  });
 });
 
 // GET route for password recovery page
@@ -214,13 +217,25 @@ app.get("/profile", async (req, res) => {
 });
 
 // Create GET route for change password page
-app.get("/change_password", (req, res) => {
+app.get("/change_password", async (req, res) => {
   // Ensure if user isnt logged in, send to login
   if (!req.session.user) {
     return res.redirect("/login");
   }
 
-  res.render("pages/password.ejs");
+  // Get current Usertry {
+  // Get the latest data from DB using the session ID
+  const result = await db.query(
+    `SELECT *
+     FROM users
+     WHERE id = $1
+     `,
+    [req.session.user.id],
+  );
+
+  const user = result.rows[0];
+
+  res.render("pages/password.ejs", { user: user });
 });
 
 // Create POST route to update a user details
