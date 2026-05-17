@@ -368,7 +368,45 @@ app.post("/Search", async (req, res) => {
 
     const data = simplifyResult(result, word);
     console.log(data);
-    res.render("index.ejs", { lexicon: data });
+
+    // Check if user is in session, & search was successful
+    if (req.session.user && data) {
+      try {
+        // insert successfully searched into search history
+        const user = req.session.user;
+        await db.query(
+          "INSERT INTO search_history (word, user_id) VALUES($1, $2)",
+          [word, user.id],
+        );
+
+        // get the recent 5 words or phrases searched
+        const queries = await db.query(
+          `SELECT word, MAX(searched_at) AS last_searched
+          FROM search_history
+          WHERE user_id = $1
+          GROUP BY word
+          ORDER BY last_searched DESC
+          LIMIT 5;    `,
+          [user.id],
+        );
+
+        const recentQueries = queries.rows;
+        console.log(recentQueries);
+
+        return res.render("pages/history.ejs", {
+          lexicon: data,
+          recentWords: recentQueries,
+          user: user,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    res.render("index.ejs", {
+      lexicon: data,
+      user: null,
+    });
   } catch (error) {
     console.error("Failed to make request", error);
     res.render("index.ejs", {
