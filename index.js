@@ -352,6 +352,47 @@ const simplifyResult = (data, query) => {
   return { hw: headWord, pho: phonetics, sound: sound, meaning: definitions };
 };
 
+// Create a get route for the history, for logged in users, with a search history
+app.get("/search_history", async (req, res) => {
+  // check if user is logged in
+  if (!req.session.user) {
+    return res.redirect("/");
+  }
+
+  // get user, &  the recent 5 words or phrases searched
+  const user = req.session.user;
+
+  try {
+    const queries = await db.query(
+      `SELECT word, MAX(searched_at) AS last_searched
+          FROM search_history
+          WHERE user_id = $1
+          GROUP BY word
+          ORDER BY last_searched DESC
+          LIMIT 5;    `,
+      [user.id],
+    );
+
+    const recentQueries = queries.rows;
+
+    // Grab the search result saved during the POST search
+    const data = req.session.lastSearchResult || null;
+
+    // Clear it from the session so it doesn't linger on a page refresh
+    req.session.lastSearchResult = null;
+
+    res.render("pages/history.ejs", {
+      lexicon: data,
+      recentWords: queries.rows,
+      user: user,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Database error");
+  }
+});
+
+// Create post route to search for a word or phrase
 app.post("/Search", async (req, res) => {
   try {
     const word = req.body.word.trim();
@@ -369,6 +410,9 @@ app.post("/Search", async (req, res) => {
     const data = simplifyResult(result, word);
     console.log(data);
 
+    // Save the search result to the session so the next page can grab it
+    req.session.lastSearchResult = data;
+
     // Check if user is in session, & search was successful
     if (req.session.user && data) {
       try {
@@ -379,25 +423,7 @@ app.post("/Search", async (req, res) => {
           [word, user.id],
         );
 
-        // get the recent 5 words or phrases searched
-        const queries = await db.query(
-          `SELECT word, MAX(searched_at) AS last_searched
-          FROM search_history
-          WHERE user_id = $1
-          GROUP BY word
-          ORDER BY last_searched DESC
-          LIMIT 5;    `,
-          [user.id],
-        );
-
-        const recentQueries = queries.rows;
-        console.log(recentQueries);
-
-        return res.render("pages/history.ejs", {
-          lexicon: data,
-          recentWords: recentQueries,
-          user: user,
-        });
+        return res.redirect("/search_history");
       } catch (error) {
         console.log(error);
       }
