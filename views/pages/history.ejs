@@ -12,7 +12,7 @@
       <button type="submit">Search</button>
     </form>
 
-    <% if (!locals.lexicon && recentWords?.length) { %>
+    <% if (locals.lexicon && recentWords?.length) { %>
 
       <section class="history-section">
         <p class="history-title">
@@ -20,13 +20,13 @@
         </p>
         <div class="history-box">
 
-          <% recentWords.forEach((word) => { %>
+          <% recentWords.forEach((recent) => { %>
 
             <a
-              href="/search?q=<%= word %>"
+              href="/search?q=<%= recent.word %>"
               class="history-word"
             >
-              <%= word %>
+              <%= recent.word%>
             </a>
 
           <% }) %>
