@@ -258,6 +258,43 @@ small {
   background-color: darkgray;
 }
 
+/* HISTORY SECTION */
+.history-section {
+  margin-top: 3rem;
+  text-align: center;
+}
+
+/* title */
+.history-title {
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+/* box */
+.history-box {
+  border: 1px solid white;
+  padding: 1rem;
+  width: 80%;
+  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem;
+}
+
+/* words */
+.history-word {
+  text-decoration: none;
+  color: white;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.history-word:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
 /* Smaller screens */
 @media (max-width: 768px) {
   .auth-content {
