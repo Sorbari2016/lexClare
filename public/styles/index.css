@@ -115,6 +115,7 @@ body {
   padding: 20px;
 }
 
+/* Place the main contents centrally */
 .container.centered {
   display: flex;
   justify-content: center;
