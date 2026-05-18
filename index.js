@@ -167,6 +167,13 @@ app.post("/login", async (req, res) => {
     // Save user into session
     req.session.user = user;
 
+    // Check if user has a search history
+    const recentQueries = await getRecentQueries(req.session.user.id);
+
+    if (recentQueries?.length) {
+      return res.redirect("/search_history");
+    }
+
     // Redirect to homepage
     res.redirect("/");
   } catch (err) {
@@ -352,6 +359,26 @@ const simplifyResult = (data, query) => {
   return { hw: headWord, pho: phonetics, sound: sound, meaning: definitions };
 };
 
+// Create method to get user recent search
+const getRecentQueries = async (userId) => {
+  try {
+    const queries = await db.query(
+      `SELECT word, MAX(searched_at) AS last_searched
+          FROM search_history
+          WHERE user_id = $1
+          GROUP BY word
+          ORDER BY last_searched DESC
+          LIMIT 5;    `,
+      [userId],
+    );
+
+    return queries.rows;
+  } catch (error) {
+    console.error("Database Error in getQuerires method: ", error);
+    throw Error;
+  }
+};
+
 // Create a get route for the history, for logged in users, with a search history
 app.get("/search_history", async (req, res) => {
   // check if user is logged in
@@ -363,17 +390,7 @@ app.get("/search_history", async (req, res) => {
   const user = req.session.user;
 
   try {
-    const queries = await db.query(
-      `SELECT word, MAX(searched_at) AS last_searched
-          FROM search_history
-          WHERE user_id = $1
-          GROUP BY word
-          ORDER BY last_searched DESC
-          LIMIT 5;    `,
-      [user.id],
-    );
-
-    const recentQueries = queries.rows;
+    const recentQueries = await getRecentQueries(user.id);
 
     // Grab the search result saved during the POST search
     const data = req.session.lastSearchResult || null;
@@ -383,11 +400,11 @@ app.get("/search_history", async (req, res) => {
 
     res.render("pages/history.ejs", {
       lexicon: data,
-      recentWords: queries.rows,
+      recentWords: recentQueries,
       user: user,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error in GET search_history", error);
     res.status(500).send("Database error");
   }
 });

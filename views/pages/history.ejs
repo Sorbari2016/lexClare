@@ -12,7 +12,7 @@
       <button type="submit">Search</button>
     </form>
 
-    <% if (locals.lexicon && recentWords?.length) { %>
+    <% if ((locals.lexicon && recentWords?.length) || (!locals.lexicon && recentWords?.length)) { %>
 
       <section class="history-section">
         <p class="history-title">
