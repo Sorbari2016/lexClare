@@ -272,7 +272,8 @@ small {
 
 /* box */
 .history-box {
-  border: 1px solid white;
+  border: 2px solid white;
+  border-radius: 10px;
   padding: 1rem;
   width: 80%;
   margin: auto;
