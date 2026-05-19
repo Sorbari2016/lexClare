@@ -386,17 +386,42 @@ app.get("/search_history", async (req, res) => {
     return res.redirect("/");
   }
 
-  // get user, &  the recent 5 words or phrases searched
+  // get logged user
   const user = req.session.user;
 
   try {
+    // Check if user clicked a history link
+    const clickedWord = req.query.q;
+    // data should be null, here
+    let data = null;
+
+    // fetch word meaning from API, directly
+    if (clickedWord) {
+      const word = clickedWord.trim();
+
+      const url = `https://www.dictionaryapi.com/api/v3/references/sd4/json/${word}?key=${API_KEY}`;
+      const response = await axios.get(url);
+      const result = response.data;
+
+      data = simplifyResult(result, word);
+
+      // Check if the data is valid,  & update database timestamp
+      if (data) {
+        await db.query(
+          "INSERT INTO search_history (word, user_id) VALUES($1, $2)",
+          [word, user.id],
+        );
+      }
+    } else {
+      // Grab the search result saved during the POST search, fallback
+      data = req.session.lastSearchResult || null;
+
+      // Clear it from the session so it doesn't linger on a page refresh
+      req.session.lastSearchResult = null;
+    }
+
+    // get latest searched words, limit it to
     const recentQueries = await getRecentQueries(user.id);
-
-    // Grab the search result saved during the POST search
-    const data = req.session.lastSearchResult || null;
-
-    // Clear it from the session so it doesn't linger on a page refresh
-    req.session.lastSearchResult = null;
 
     res.render("pages/history.ejs", {
       lexicon: data,
@@ -410,7 +435,7 @@ app.get("/search_history", async (req, res) => {
 });
 
 // Create post route to search for a word or phrase
-app.post("/Search", async (req, res) => {
+app.post("/search", async (req, res) => {
   try {
     const word = req.body.word.trim();
 
