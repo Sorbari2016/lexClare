@@ -7,6 +7,8 @@ import session from "express-session";
 import methodOverride from "method-override";
 import multer from "multer"; // important for handle file uploads
 import bcrypt from "bcrypt"; // For hashing passwords securely
+import passport from "passport";
+import { Strategy } from "passport-local";
 
 // Configure dotenv
 dotenv.config();
@@ -43,6 +45,13 @@ app.use(
     },
   }),
 );
+
+// PASSPORT SETUP, after session
+// Initialize Passport authentication middleware
+app.use(passport.initialize());
+
+// Enable persistent login sessions
+app.use(passport.session());
 
 // Set up database
 const db = new pg.Client({
@@ -204,19 +213,12 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// Create a get route to log out
-app.get("/logout", (req, res) => {
-  req.session.destroy((err) => {
-    // Use session destroy to complete remove user
+// Create a get route to log out, passport method to remove user from session
+app.get("/logout", (req, res, next) => {
+  req.logout(function (err) {
     if (err) {
-      console.log("Logout error: ", err);
-      res.redirect("/");
+      return next(err);
     }
-
-    // Clear cookie on the browser side
-    res.clearCookie("connect.sid");
-
-    // Redirect to homepage
     res.redirect("/");
   });
 });
