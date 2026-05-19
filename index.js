@@ -6,12 +6,15 @@ import pg from "pg";
 import session from "express-session";
 import methodOverride from "method-override";
 import multer from "multer"; // important for handle file uploads
+import bcrypt from "bcrypt"; // For hashing passwords securely
 
 // Configure dotenv
 dotenv.config();
 
 const app = express();
 const PORT = 3000;
+
+const saltRounds = 10; // number of times to run the hashing math
 
 const API_KEY = process.env.SCH_DICT_API_KEY;
 
@@ -112,21 +115,29 @@ app.post("/register", async (req, res) => {
       });
     }
 
-    const result = await db.query(
-      `
-      INSERT INTO users (first_name, last_name, email, password)
-      VALUES ($1, $2, $3, $4) RETURNING *; 
-      `,
-      [firstName, lastName, email, password],
-    );
+    // Hash password before saving
+    bcrypt.hash(password, saltRounds, async (err, hash) => {
+      if (err) {
+        console.error("Error hashing password: ", err);
+      } else {
+        console.log("Hashed password: ", hash);
 
-    const user = result.rows[0];
-    console.log(user);
+        const result = await db.query(
+          `INSERT INTO users (first_name, last_name, email, password)
+           VALUES ($1, $2, $3, $4) RETURNING *; 
+          `,
+          [firstName, lastName, email, hash],
+        );
 
-    // save user to session
-    req.session.user = user;
+        const user = result.rows[0];
+        console.log(user);
 
-    res.redirect("/");
+        // save user to session
+        req.session.user = user;
+
+        res.redirect("/");
+      }
+    });
   } catch (err) {
     console.error("Database Error:", err);
     res.status(500).send("An internal error occurred.");
@@ -135,14 +146,14 @@ app.post("/register", async (req, res) => {
 
 // Create a post route for login
 app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password: loginPassword } = req.body;
 
   try {
     const result = await db.query(
       `SELECT * 
-    FROM users
-    WHERE email = $1
-    `,
+      FROM users
+      WHERE email = $1
+      `,
       [email],
     );
 
@@ -154,28 +165,39 @@ app.post("/login", async (req, res) => {
       });
     }
 
-    // Check if password mismatch
     const user = result.rows[0];
     console.log(user);
-    const storedPassword = user.password;
-    if (password !== storedPassword) {
-      return res.render("pages/login.ejs", {
-        message: "Incorrect password, try login in again",
-        formData: { email },
-      });
-    }
-    // Save user into session
-    req.session.user = user;
+    const storedHashedPassword = user.password;
 
-    // Check if user has a search history
-    const recentQueries = await getRecentQueries(req.session.user.id);
+    // Verifying the password
+    bcrypt.compare(loginPassword, storedHashedPassword, async (err, result) => {
+      if (err) {
+        console.error("Error comparing passwords: ", err);
+      } else {
+        if (result) {
+          console.log("This is the compare result: ", result);
 
-    if (recentQueries?.length) {
-      return res.redirect("/search_history");
-    }
+          // Save user into session
+          req.session.user = user;
 
-    // Redirect to homepage
-    res.redirect("/");
+          // Check if user has a search history
+          const recentQueries = await getRecentQueries(req.session.user.id);
+
+          if (recentQueries?.length) {
+            return res.redirect("/search_history");
+          }
+
+          // Redirect to homepage
+          res.redirect("/");
+        } else {
+          // If password is incorrect
+          return res.render("pages/login.ejs", {
+            message: "Incorrect password, try login in again",
+            formData: { email },
+          });
+        }
+      }
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send("An internal error occurred.");
