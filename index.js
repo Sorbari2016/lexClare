@@ -7,8 +7,8 @@ import session from "express-session";
 import methodOverride from "method-override";
 import multer from "multer"; // important for handle file uploads
 import bcrypt from "bcrypt"; // For hashing passwords securely
-import passport from "passport";
-import { Strategy } from "passport-local";
+import passport, { Passport } from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
 
 // Configure dotenv
 dotenv.config();
@@ -130,7 +130,7 @@ app.post("/register", async (req, res) => {
         console.error("Error hashing password: ", err);
       } else {
         console.log("Hashed password: ", hash);
-
+        // add user to db
         const result = await db.query(
           `INSERT INTO users (first_name, last_name, email, password)
            VALUES ($1, $2, $3, $4) RETURNING *; 
@@ -160,8 +160,8 @@ app.post("/login", async (req, res) => {
   try {
     const result = await db.query(
       `SELECT * 
-      FROM users
-      WHERE email = $1
+       FROM users
+       WHERE email = $1
       `,
       [email],
     );
@@ -192,6 +192,7 @@ app.post("/login", async (req, res) => {
           // Check if user has a search history
           const recentQueries = await getRecentQueries(req.session.user.id);
 
+          // Take user to search history page
           if (recentQueries?.length) {
             return res.redirect("/search_history");
           }
@@ -225,16 +226,16 @@ app.get("/logout", (req, res, next) => {
 
 // Create GET route for profile page
 app.get("/profile", async (req, res) => {
-  // Ensure if user isnt logged in, send to login
+  // Ensure if user isnt in session, send to login
   if (!req.session.user) {
     return res.redirect("/login");
   }
   try {
-    // Get the latest data from DB using the session ID
+    // Get user
     const result = await db.query(
       `SELECT *
-     FROM users
-     WHERE id = $1
+       FROM users
+       WHERE id = $1
      `,
       [req.session.user.id],
     );
@@ -282,7 +283,7 @@ app.put("/users/:id", upload.single("profile_picture"), async (req, res) => {
   try {
     const result = await db.query(
       `UPDATE users
-      SET first_name = $1,
+       SET first_name = $1,
           last_name = $2,
           email = $3
           WHERE id = $4
@@ -292,6 +293,7 @@ app.put("/users/:id", upload.single("profile_picture"), async (req, res) => {
 
     const user = result.rows[0];
     console.log(user);
+
     // save updated user into session
     req.session.user = user;
 
@@ -504,6 +506,57 @@ app.post("/search", async (req, res) => {
     res.render("index.ejs", {
       error: "No meaning for word",
     });
+  }
+});
+
+// Register a passport local strategy
+passport.use(
+  new LocalStrategy(
+    { usernameField: "email" }, // Tell passport that instead of name='username' (as it expects), its email
+
+    async function verify(email, password, cb) {
+      try {
+        // Get user
+        const result = await db.query("SELECT * FROM users WHERE email = $1", [
+          email,
+        ]);
+
+        // if user doesnt exist
+        if (result.rows.length === 0) {
+          return cb(null, false, { message: "Incorrect password or email" });
+        }
+
+        const user = result.rows[0];
+
+        const isMatch = await bcrypt.compare(password, user.password); // verify user, compare passwords
+
+        // if user passes verification
+        if (isMatch) {
+          return cb(null, user, { message: "Incorrect password or email" });
+        } else {
+          return cb(null, false);
+        }
+      } catch (err) {
+        return cb(err);
+      }
+    },
+  ),
+);
+
+// Save user id to session cookie container
+passport.serializeUser((user, cb) => {
+  cb(null, user.id);
+});
+
+// Take the user ID out of the session and fetch full info from DB
+passport.deserializeUser(async (id, cb) => {
+  try {
+    const result = await db.query("SELECT * FROM WHERE id = $1", [id]);
+    const user = result.rows[0];
+
+    cb(null, user);
+  } catch (err) {
+    cb(err);
   }
 });
 
