@@ -67,7 +67,7 @@ db.connect();
 
 // GET route for homepage
 app.get("/", (req, res) => {
-  const user = req.session.user || null;
+  const user = req.user || null;
   res.render("index.ejs", { user: user });
 });
 
@@ -101,8 +101,8 @@ app.get("/register", (req, res) => {
 app.post("/register", async (req, res) => {
   const { email, firstName, lastName, password, confirmPassword } = req.body;
 
-  // We first check if the user is already exists
   try {
+    // Check if the user already exists
     const checkResult = await db.query(
       `SELECT * FROM users WHERE email = $1;`,
       [email],
@@ -110,42 +110,41 @@ app.post("/register", async (req, res) => {
 
     if (checkResult.rows.length > 0) {
       return res.render("pages/register.ejs", {
-        message: "User already exists, Try loggin in",
+        message: "User already exists. Try logging in.",
         formData: {},
       });
     }
 
     // Make sure the passwords match
     if (password !== confirmPassword) {
-      // Stop here, if password mismatch
       return res.render("pages/register.ejs", {
-        message: "Password do not match",
+        message: "Passwords do not match",
         formData: { email, firstName, lastName },
       });
     }
 
-    // Hash password before saving
-    bcrypt.hash(password, saltRounds, async (err, hash) => {
+    // Rewrite hashing method
+    const hash = await bcrypt.hash(password, saltRounds);
+
+    // Add user to DB
+    const result = await db.query(
+      `INSERT INTO users (first_name, last_name, email, password)
+       VALUES ($1, $2, $3, $4) RETURNING *;`,
+      [firstName, lastName, email, hash],
+    );
+
+    const user = result.rows[0];
+    console.log("Newly registered user:", user);
+
+    // log user in automatically
+    req.login(user, (err) => {
       if (err) {
-        console.error("Error hashing password: ", err);
-      } else {
-        console.log("Hashed password: ", hash);
-        // add user to db
-        const result = await db.query(
-          `INSERT INTO users (first_name, last_name, email, password)
-           VALUES ($1, $2, $3, $4) RETURNING *; 
-          `,
-          [firstName, lastName, email, hash],
-        );
-
-        const user = result.rows[0];
-        console.log(user);
-
-        // save user to session
-        req.session.user = user;
-
-        res.redirect("/");
+        console.error("Passport login redirection error:", err);
+        return res.status(500).send("Error establishing session.");
       }
+
+      // Once Passport finishes serializing, send them home!
+      return res.redirect("/");
     });
   } catch (err) {
     console.error("Database Error:", err);
@@ -153,65 +152,46 @@ app.post("/register", async (req, res) => {
   }
 });
 
-// Create a post route for login
-app.post("/login", async (req, res) => {
-  const { email, password: loginPassword } = req.body;
+// Create a post route for login, with passport auth
+app.post("/login", (req, res, next) => {
+  passport.authenticate(
+    "local",
 
-  try {
-    const result = await db.query(
-      `SELECT * 
-       FROM users
-       WHERE email = $1
-      `,
-      [email],
-    );
-
-    // Check if user isn't registered yet
-    if (result.rows.length === 0) {
-      return res.render("pages/login.ejs", {
-        message: "User do not exists, Try signing up",
-        formData: {},
-      });
-    }
-
-    const user = result.rows[0];
-    console.log(user);
-    const storedHashedPassword = user.password;
-
-    // Verifying the password
-    bcrypt.compare(loginPassword, storedHashedPassword, async (err, result) => {
+    async (err, user, info) => {
+      // internal server error
       if (err) {
-        console.error("Error comparing passwords: ", err);
-      } else {
-        if (result) {
-          console.log("This is the compare result: ", result);
-
-          // Save user into session
-          req.session.user = user;
-
-          // Check if user has a search history
-          const recentQueries = await getRecentQueries(req.session.user.id);
-
-          // Take user to search history page
-          if (recentQueries?.length) {
-            return res.redirect("/search_history");
-          }
-
-          // Redirect to homepage
-          res.redirect("/");
-        } else {
-          // If password is incorrect
-          return res.render("pages/login.ejs", {
-            message: "Incorrect password, try login in again",
-            formData: { email },
-          });
-        }
+        console.error(err);
+        return res.status(500).send("An internal error occurred.");
       }
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("An internal error occurred.");
-  }
+
+      // authentication failed
+      if (!user) {
+        return res.render("pages/login.ejs", {
+          message: info?.message || "Login failed",
+          formData: {
+            email: req.body.email,
+          },
+        });
+      }
+
+      // log user in
+      req.login(user, async (err) => {
+        if (err) {
+          return next(err);
+        }
+
+        // user authentication is successful
+        const recentQueries = await getRecentQueries(user.id);
+
+        // redirect based on history
+        if (recentQueries?.length) {
+          return res.redirect("/search_history");
+        }
+
+        res.redirect("/");
+      });
+    },
+  )(req, res, next);
 });
 
 // Create a get route to log out, passport method to remove user from session
@@ -227,7 +207,7 @@ app.get("/logout", (req, res, next) => {
 // Create GET route for profile page
 app.get("/profile", async (req, res) => {
   // Ensure if user isnt in session, send to login
-  if (!req.session.user) {
+  if (!req.isAuthenticated()) {
     return res.redirect("/login");
   }
   try {
@@ -237,7 +217,7 @@ app.get("/profile", async (req, res) => {
        FROM users
        WHERE id = $1
      `,
-      [req.session.user.id],
+      [req.user.id],
     );
 
     const user = result.rows[0];
@@ -251,7 +231,7 @@ app.get("/profile", async (req, res) => {
 // Create GET route for change password page
 app.get("/change_password", async (req, res) => {
   // Ensure if user isnt logged in, send to login
-  if (!req.session.user) {
+  if (!req.isAuthenticated()) {
     return res.redirect("/login");
   }
 
@@ -261,7 +241,7 @@ app.get("/change_password", async (req, res) => {
      FROM users
      WHERE id = $1
      `,
-    [req.session.user.id],
+    [req.user.id],
   );
 
   const user = result.rows[0];
@@ -272,7 +252,7 @@ app.get("/change_password", async (req, res) => {
 // Create PUT route to update a user details
 app.put("/users/:id", upload.single("profile_picture"), async (req, res) => {
   // Ensure if user isnt logged in, send to login
-  if (!req.session.user) {
+  if (!req.isAuthenticated()) {
     return res.redirect("/login");
   }
 
@@ -291,11 +271,11 @@ app.put("/users/:id", upload.single("profile_picture"), async (req, res) => {
       [firstName, lastName, email, userId],
     );
 
-    const user = result.rows[0];
-    console.log(user);
+    const updatedUser = result.rows[0];
+    console.log(updatedUser);
 
     // save updated user into session
-    req.session.user = user;
+    req.user = updatedUser;
 
     res.redirect("/");
   } catch (error) {
@@ -306,7 +286,7 @@ app.put("/users/:id", upload.single("profile_picture"), async (req, res) => {
 // Create PUT route to update user password
 app.put("/users/:id/change_password", async (req, res) => {
   // Ensure if user isnt logged in, send to login
-  if (!req.session.user) {
+  if (!req.isAuthenticated()) {
     return res.redirect("/login");
   }
 
@@ -316,14 +296,20 @@ app.put("/users/:id/change_password", async (req, res) => {
   // Get password stored
   try {
     const result = await db.query("SELECT * FROM users WHERE id = $1", [
-      req.session.user.id,
+      req.user.id,
     ]);
 
     const user = result.rows[0];
     const storedPassword = user.password;
 
+    // compare inputted password with store hashed
+    const isCurrentPasswordValid = await bcrypt.compare(
+      currentPassword,
+      storedPassword,
+    );
+
     // Check if the current password is correct
-    if (currentPassword !== storedPassword) {
+    if (!isCurrentPasswordValid) {
       return res.render("pages/password.ejs", {
         user: user,
         message: "The current password entered is incorrect",
@@ -338,22 +324,31 @@ app.put("/users/:id/change_password", async (req, res) => {
       });
     }
 
+    // compare new password with stored hash
+    const isNewPasswordSimilar = await bcrypt.compare(
+      newPassword,
+      storedPassword,
+    );
+
     // Check if the new password is the same as the stored one
-    if (newPassword === storedPassword) {
+    if (isNewPasswordSimilar) {
       return res.render("pages/password.ejs", {
         user: user,
         message: "New password must be different from your current password",
       });
     }
 
+    // hash new password
+    const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
+
     // update user password
     await db.query("UPDATE users SET password = $1 WHERE id = $2;", [
-      newPassword,
+      newPasswordHash,
       userId,
     ]);
 
     // save user in session
-    req.session.user = user;
+    req.user = user;
 
     res.render("pages/password.ejs", {
       user: user,
@@ -408,12 +403,12 @@ const getRecentQueries = async (userId) => {
 // Create a get route for the history, for logged in users, with a search history
 app.get("/search_history", async (req, res) => {
   // check if user is logged in
-  if (!req.session.user) {
+  if (!req.isAuthenticated()) {
     return res.redirect("/");
   }
 
   // get logged user
-  const user = req.session.user;
+  const user = req.user;
 
   try {
     // Check if user clicked a history link
@@ -482,10 +477,10 @@ app.post("/search", async (req, res) => {
     req.session.lastSearchResult = data;
 
     // Check if user is in session, & search was successful
-    if (req.session.user && data) {
+    if (req.user && data) {
       try {
         // insert successfully searched into search history
-        const user = req.session.user;
+        const user = req.user;
         await db.query(
           "INSERT INTO search_history (word, user_id) VALUES($1, $2)",
           [word, user.id],
@@ -523,7 +518,9 @@ passport.use(
 
         // if user doesnt exist
         if (result.rows.length === 0) {
-          return cb(null, false, { message: "Incorrect password or email" });
+          return cb(null, false, {
+            message: "User do not exists, Try signing up",
+          });
         }
 
         const user = result.rows[0];
@@ -532,9 +529,11 @@ passport.use(
 
         // if user passes verification
         if (isMatch) {
-          return cb(null, user, { message: "Incorrect password or email" });
+          return cb(null, user);
         } else {
-          return cb(null, false);
+          return cb(null, false, {
+            message: "Incorrect password, try login in again",
+          });
         }
       } catch (err) {
         return cb(err);
@@ -548,10 +547,10 @@ passport.serializeUser((user, cb) => {
   cb(null, user.id);
 });
 
-// Take the user ID out of the session and fetch full info from DB
+// Take the user ID out of the session and fetch full user obj from DB
 passport.deserializeUser(async (id, cb) => {
   try {
-    const result = await db.query("SELECT * FROM WHERE id = $1", [id]);
+    const result = await db.query("SELECT * FROM users WHERE id = $1", [id]);
     const user = result.rows[0];
 
     cb(null, user);
