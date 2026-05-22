@@ -7,8 +7,9 @@ import session from "express-session";
 import methodOverride from "method-override";
 import multer from "multer"; // important for handle file uploads
 import bcrypt from "bcrypt"; // For hashing passwords securely
-import passport, { Passport } from "passport";
+import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
+import GoogleStrategy from "passport-google-oauth2";
 
 // Configure dotenv
 dotenv.config();
@@ -79,6 +80,23 @@ app.get("/signup", (req, res) => {
   });
 });
 
+// GET route for Google signup
+app.get(
+  "/auth/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+  }),
+);
+
+// GET homepage on successful google auth
+app.get(
+  "/auth/google/callback",
+  passport.authenticate("google", {
+    successRedirect: "/",
+    failureRedirect: "/login",
+  }),
+);
+
 // GET route for the login page
 app.get("/login", (req, res) => {
   res.render("pages/login.ejs", {
@@ -133,11 +151,11 @@ app.post("/register", async (req, res) => {
       [firstName, lastName, email, hash],
     );
 
-    const user = result.rows[0];
-    console.log("Newly registered user:", user);
+    const newUser = result.rows[0];
+    console.log("Newly registered user:", newUser);
 
     // log user in automatically
-    req.login(user, (err) => {
+    req.login(newUser, (err) => {
       if (err) {
         console.error("Passport login redirection error:", err);
         return res.status(500).send("Error establishing session.");
@@ -302,13 +320,12 @@ app.patch("/users/:id/change_password", async (req, res) => {
     const user = result.rows[0];
     const storedPassword = user.password;
 
-    // compare inputted password with store hashed
+    // Check if the current password is correct
     const isCurrentPasswordValid = await bcrypt.compare(
       currentPassword,
       storedPassword,
     );
 
-    // Check if the current password is correct
     if (!isCurrentPasswordValid) {
       return res.render("pages/password.ejs", {
         user: user,
@@ -324,13 +341,12 @@ app.patch("/users/:id/change_password", async (req, res) => {
       });
     }
 
-    // compare new password with stored hash
+    // Check if the new password is the same as the stored one
     const isNewPasswordSimilar = await bcrypt.compare(
       newPassword,
       storedPassword,
     );
 
-    // Check if the new password is the same as the stored one
     if (isNewPasswordSimilar) {
       return res.render("pages/password.ejs", {
         user: user,
@@ -338,10 +354,9 @@ app.patch("/users/:id/change_password", async (req, res) => {
       });
     }
 
-    // hash new password
+    // hash the new password, & update the user
     const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
 
-    // update user password
     await db.query("UPDATE users SET password = $1 WHERE id = $2;", [
       newPasswordHash,
       userId,
@@ -537,6 +552,48 @@ passport.use(
         }
       } catch (err) {
         return cb(err);
+      }
+    },
+  ),
+);
+
+// Set up a Google-based strategy
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "http://localhost:3000/auth/google/callback",
+      userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
+    },
+
+    async (accessToken, refreshToken, profile, cb) => {
+      try {
+        console.log(profile);
+        const result = await db.query("SELECT * FROM users WHERE email = $1", [
+          profile.email,
+        ]);
+        // if user does not exit
+        if (result.rows.length === 0) {
+          const {
+            name: { givenName, familyName },
+            email,
+          } = profile;
+          const newUser = await db.query(
+            `INSERT INTO users 
+             (first_name, last_name, email, password) 
+             VALUES ($1, $2, $3, $4)
+             RETURNING *`,
+            [givenName, familyName, email, "google"],
+          );
+          cb(null, newUser.rows[0]);
+        } else {
+          // Already have an existing user
+          const user = result.rows[0];
+          cb(null, user);
+        }
+      } catch (err) {
+        cb(err);
       }
     },
   ),
