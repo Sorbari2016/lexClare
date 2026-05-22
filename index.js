@@ -284,7 +284,7 @@ app.put("/users/:id", upload.single("profile_picture"), async (req, res) => {
 });
 
 // Create PUT route to update user password
-app.put("/users/:id/change_password", async (req, res) => {
+app.patch("/users/:id/change_password", async (req, res) => {
   // Ensure if user isnt logged in, send to login
   if (!req.isAuthenticated()) {
     return res.redirect("/login");
