@@ -10,6 +10,7 @@ import bcrypt from "bcrypt"; // For hashing passwords securely
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import GoogleStrategy from "passport-google-oauth2";
+import { Strategy as FacebookStrategy } from "passport-facebook";
 
 // Configure dotenv
 dotenv.config();
@@ -80,7 +81,8 @@ app.get("/signup", (req, res) => {
   });
 });
 
-// GET route for Google signup
+// GOOGLE AUTH
+// GET route for Google auth page
 app.get(
   "/auth/google",
   passport.authenticate("google", {
@@ -88,13 +90,31 @@ app.get(
   }),
 );
 
-// GET homepage on successful google auth
+// GET page after google auth redirect
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
     successRedirect: "/",
     failureRedirect: "/login",
   }),
+);
+
+// FACEBOOK AUTH
+// GET route for facebook
+app.get(
+  "/auth/facebook",
+  passport.authenticate("facebook", { scope: ["email"] }),
+);
+
+// GET page after facebook auth redirect
+app.get(
+  "/auth/facebook/callback",
+  passport.authenticate("facebook", {
+    failureRedirect: "/login",
+  }),
+  (req, res) => {
+    res.redirect("/");
+  },
 );
 
 // GET route for the login page
@@ -569,12 +589,12 @@ passport.use(
 
     async (accessToken, refreshToken, profile, cb) => {
       try {
-        console.log(profile);
         const result = await db.query("SELECT * FROM users WHERE email = $1", [
           profile.email,
         ]);
         // if user does not exit
         if (result.rows.length === 0) {
+          // destructure needed properties from google data
           const {
             name: { givenName, familyName },
             email,
@@ -585,6 +605,48 @@ passport.use(
              VALUES ($1, $2, $3, $4)
              RETURNING *`,
             [givenName, familyName, email, "google"],
+          );
+          cb(null, newUser.rows[0]);
+        } else {
+          // Already have an existing user
+          const user = result.rows[0];
+          cb(null, user);
+        }
+      } catch (err) {
+        cb(err);
+      }
+    },
+  ),
+);
+
+// Set up Facebook Strategy
+passport.use(
+  new FacebookStrategy(
+    {
+      clientID: process.env.FACEBOOK_APP_ID,
+      clientSecret: process.env.FACEBOOK_APP_SECRET,
+      callbackURL: "http://localhost:3000/auth/facebook/callback",
+      profileFields: ["id", "displayName", "emails"],
+    },
+    async (accessToken, refreshToken, profile, cb) => {
+      try {
+        const result = await db.query("SELECT * FROM users WHERE email = $1", [
+          profile?.emails[0]?.value,
+        ]);
+        // if user does not exit
+        if (result.rows.length === 0) {
+          // destructure needed properties from fb data
+          const {
+            displayName,
+            emails: [{ value: email }],
+          } = profile;
+          const [firstName, lastName] = displayName.split(" ");
+          const newUser = await db.query(
+            `INSERT INTO users 
+             (first_name, last_name, email, password) 
+             VALUES ($1, $2, $3, $4)
+             RETURNING *`,
+            [firstName, lastName, email, "facebook"],
           );
           cb(null, newUser.rows[0]);
         } else {
