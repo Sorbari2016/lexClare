@@ -62,3 +62,9 @@ WHERE user_id = 5
 GROUP BY word
 ORDER BY last_searched DESC
 LIMIT 5;
+
+-- Renovate users relation to include token, & expiration
+ALTER TABLE users
+ADD COLUMN reset_token TEXT,
+ADD COLUMN reset_token_expires TIMESTAMP;
+
