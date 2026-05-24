@@ -11,9 +11,18 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import GoogleStrategy from "passport-google-oauth2";
 import { Strategy as FacebookStrategy } from "passport-facebook";
+import crypto from "crypto"; // to generate random token
+import nodemailer from "nodemailer";
+import path from "path";
+import { fileURLToPath } from "url";
+import ejs from "ejs";
 
 // Configure dotenv
 dotenv.config();
+
+// Set up --dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 3000;
@@ -47,6 +56,15 @@ app.use(
     },
   }),
 );
+
+// Set transporter for nodemailer
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 // PASSPORT SETUP, after session
 // Initialize Passport authentication middleware
@@ -127,7 +145,7 @@ app.get("/login", (req, res) => {
 
 // GET route for password recovery page
 app.get("/recover", (req, res) => {
-  res.render("pages/recover.ejs");
+  res.render("pages/recover.ejs", { message: "" });
 });
 
 // GET redirect route for sign up
@@ -240,6 +258,71 @@ app.get("/logout", (req, res, next) => {
     }
     res.redirect("/");
   });
+});
+
+// Create POST route for password recovery
+app.post("/recover", async (req, res) => {
+  const email = req.body.email;
+
+  try {
+    const result = await db.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
+
+    // Check if user exists
+    if (result.rows.length === 0) {
+      return res.render("pages/recover", {
+        message: "No user with that email",
+      });
+    }
+
+    const user = result.rows[0];
+
+    // Generate token using crypto
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    // set reset code, 6 digits(standard)
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // set token expiry time to 1 hour (standard)
+    const expiry = new Date(Date.now() + 3600000);
+
+    // update user with token and reset time
+    await db.query(
+      `UPDATE users
+     SET reset_token = $1,  
+         reset_code = $2, 
+         expires = $3 
+     WHERE id = $4; 
+  `,
+      [resetToken, resetCode, expiry, user.id],
+    );
+
+    // create reset link
+    const resetLink = `http://localhost:3000/recover/${resetToken}`;
+
+    // / send Email using EJS Template
+    const templatePath = path.join(__dirname, "/views/pages/mail.ejs");
+
+    // create html
+    const html = await ejs.renderFile(templatePath, {
+      name: user.name || user.email.split("@")[0],
+      resetLink: resetLink,
+      resetCode: resetCode,
+    });
+
+    // send mail
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: user.email,
+      subject: "Password Reset",
+      html: html,
+    });
+    res.render("pages/reset.ejs", { message: "" });
+  } catch (err) {
+    console.error(err);
+    res.send("Something went wrong: ", err);
+  }
 });
 
 // Create GET route for profile page

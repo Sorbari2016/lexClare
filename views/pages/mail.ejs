@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      * {
+        border: 0;
+        box-sizing: border-box;
+      }
+
+      .reset-container {
+        border-radius: 5px;
+        border: 1px solid grey;
+        padding: 20px;
+        background-color: #020617;
+        color: white;
+      }
+
+      .reset-btn {
+        text-decoration: none;
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: 0.2s ease;
+        color: white;
+        background-color: transparent;
+        border: 1px solid #334155;
+      }
+
+      .option-a,
+      .option-b {
+        padding: 10px;
+      }
+
+      h3 {
+        margin-bottom: 3rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reset-container">
+      <header>
+        <h2>LexClare</h2>
+        <h3>Password Reset</h3>
+      </header>
+      <main>
+        <div class="greeting">
+          <p>Dear LexClare User,</p>
+        </div>
+        <div class="body">
+          <p>
+            We've received your request to reset your password. Please click the
+            link below to complete the reset.
+          </p>
+          <div class="option-a">
+            <form
+              action=""
+              class="reset-form"
+              method="get"
+              accept-charset="utf-8"
+            >
+              <a href="<%=locals.resetLink %>" class="reset-btn"
+                >Reset my pasword</a
+              >
+            </form>
+          </div>
+          <div class="option-b">
+            <p>Or Copy the code below and use it to reset your password.</p>
+            <h4><%=locals.resetCode %></h4>
+          </div>
+          <div class="caveat">
+            <p>This link is valid for a single use and expires in 24 hours.</p>
+            <p>
+              Please ignore this email if you did not initiate this change. If
+              you need additional assistance, please contact
+              <a href="mailto:clarecodexxx@gmail.com">help@lexClare.com</a>
+            </p>
+          </div>
+        </div>
+      </main>
+      <hr />
+      <footer>
+        <% let currentYear = new Date().getFullYear() %>
+        <small> ©<%=currentYear %> LexClare Inc. All right reserved</small>
+        <small><address>Umuchorlo, Aluu, Port Harcourt.</address></small>
+      </footer>
+    </div>
+  </body>
+</html>
