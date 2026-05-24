@@ -75,3 +75,9 @@ ADD COLUMN reset_code TEXT
 ALTER TABLE users
 RENAME reset_token_expires TO expires
 
+-- Query to get reset code that isnt expired
+SELECT * 
+FROM users
+WHERE reset_code = '786739'
+AND expires > NOW(); 
+
