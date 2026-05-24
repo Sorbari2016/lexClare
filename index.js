@@ -374,6 +374,34 @@ app.post("/recover/enter-code", async (req, res) => {
   }
 });
 
+// Create GET route to reset password via token
+app.get("/recover/:token", async (req, res) => {
+  const { token } = req.params;
+
+  try {
+    const result = await db.query(
+      `SELECT * 
+       FROM users
+       WHERE reset_token = $1
+       AND expires > NOW()`,
+      [token],
+    );
+
+    // check is token is still valid
+    if (result.rows.length === 0) {
+      return res.render("pages/recover.ejs", {
+        message: "Invalid or expired token",
+      });
+    }
+
+    const user = result.rows[0];
+    res.render("pages/reset.ejs", { message: "", token: token });
+  } catch (err) {
+    console.error(err);
+    res.send("Error resetting password");
+  }
+});
+
 // Create GET route for profile page
 app.get("/profile", async (req, res) => {
   // Ensure if user isnt in session, send to login
