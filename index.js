@@ -269,7 +269,7 @@ app.post("/recover", async (req, res) => {
       email,
     ]);
 
-    // Check if user exists
+    // check if user exists
     if (result.rows.length === 0) {
       return res.render("pages/recover", {
         message: "No user with that email",
@@ -278,10 +278,10 @@ app.post("/recover", async (req, res) => {
 
     const user = result.rows[0];
 
-    // Generate token using crypto
+    // generate token using crypto
     const resetToken = crypto.randomBytes(32).toString("hex");
 
-    // set reset code, 6 digits(standard)
+    // generate reset code, 6 digits(standard)
     const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
 
     // set token expiry time to 1 hour (standard)
@@ -322,6 +322,55 @@ app.post("/recover", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.send("Something went wrong: ", err);
+  }
+});
+
+// Create POST route to reset password via code
+app.post("/recover/enter-code", async (req, res) => {
+  const { resetCode, newPassword, confirmNewPassword } = req.body;
+
+  try {
+    const result = await db.query(
+      `SELECT *
+       FROM users
+       WHERE reset_code = $1 
+       AND expires > NOW()`,
+      [resetCode],
+    );
+    // check if code has expired
+    if (result.rows.length === 0) {
+      return res.render("/pages.reset.ejs", {
+        message: "Invalid or expired code",
+      });
+    }
+
+    // check if new password and confirm password are the same
+    if (newPassword !== confirmNewPassword) {
+      return res.render("pages/reset.ejs", {
+        message: "Passwords do not match",
+      });
+    }
+
+    const user = result.rows[0];
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // update user password, clear tokens
+    await db.query(
+      `UPDATE users
+       SET password = $1, 
+           reset_code = NULL, 
+           reset_token = NULL,
+           expires = NULL 
+      WHERE id = $2; 
+      `,
+      [hashedPassword, user.id],
+    );
+    res.redirect("/login");
+  } catch (err) {
+    console.error(err);
+    res.send("Error resetting password");
   }
 });
 
