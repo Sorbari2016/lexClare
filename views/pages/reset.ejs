@@ -1,0 +1,46 @@
+<%- include("../partials/header", {headerContent:"Reset Password"}) %>
+
+<main class="recover-page">
+    <section class="recover-card">
+        <div class="recover-content">
+            <p class="recover-text">
+                Please enter the reset code sent to you and create a new password:
+            </p>
+            <form action="/recover" method="post" class="recover-form">
+                <label for="email">
+                    Reset Code: *
+                </label>
+                <input
+                    type="text"
+                    id="reset_code"
+                    name="resetCode"
+                    required
+                >
+                <label for="email">
+                    New Password: *
+                </label>
+                <input
+                    type="password"
+                    id="new_pwd"
+                    name="newPassword"
+                    required
+                >
+                <label for="email">
+                    Confirm Password: *
+                </label>
+                <input
+                    type="password"
+                    id="conf_pwd"
+                    name="confirmNewPassword"
+                    required
+                >
+                <small class="message"><%=locals.message%></small>
+                <button type="submit">
+                    Create New Password
+                </button>
+            </form>
+        </div>
+    </section>
+</main>
+
+<%- include("../partials/footer") %>

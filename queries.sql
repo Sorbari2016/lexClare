@@ -68,3 +68,10 @@ ALTER TABLE users
 ADD COLUMN reset_token TEXT,
 ADD COLUMN reset_token_expires TIMESTAMP;
 
+-- Edit users tables to also have a reset code field
+ALTER TABLE users
+ADD COLUMN reset_code TEXT
+
+ALTER TABLE users
+RENAME reset_token_expires TO expires
+
