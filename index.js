@@ -318,7 +318,9 @@ app.post("/recover", async (req, res) => {
       subject: "Password Reset",
       html: html,
     });
-    res.render("pages/reset.ejs", { message: "" });
+    res.render("pages/reset.ejs", {
+      message: "",
+    });
   } catch (err) {
     console.error(err);
     res.send("Something went wrong: ", err);
@@ -339,7 +341,7 @@ app.post("/recover/enter-code", async (req, res) => {
     );
     // check if code has expired
     if (result.rows.length === 0) {
-      return res.render("/pages.reset.ejs", {
+      return res.render("pages/reset.ejs", {
         message: "Invalid or expired code",
       });
     }
@@ -394,8 +396,61 @@ app.get("/recover/:token", async (req, res) => {
       });
     }
 
+    res.render("pages/reset.ejs", {
+      message: "",
+      token: token,
+    });
+  } catch (err) {
+    console.error(err);
+    res.send("Error resetting password");
+  }
+});
+
+// Create POST route to reset by token
+app.post("/recover/:token", async (req, res) => {
+  const { token } = req.params;
+  const { newPassword, confirmNewPassword } = req.body;
+
+  try {
+    const result = await db.query(
+      `SELECT *
+       FROM users
+       WHERE reset_token = $1
+       AND expires > NOW()`,
+      [token],
+    );
+
+    // check if code has expired
+    if (result.rows.length === 0) {
+      return res.render("pages/reset.ejs", {
+        message: "Invalid or expired code",
+      });
+    }
+
+    // check if new password and confirm password are the same
+    if (newPassword !== confirmNewPassword) {
+      return res.render("pages/reset.ejs", {
+        message: "Passwords do not match",
+      });
+    }
+
     const user = result.rows[0];
-    res.render("pages/reset.ejs", { message: "", token: token });
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // update user password, clear tokens
+    await db.query(
+      `UPDATE users
+       SET password = $1, 
+           reset_code = NULL, 
+           reset_token = NULL,
+           expires = NULL 
+      WHERE id = $2; 
+      `,
+      [hashedPassword, user.id],
+    );
+    res.redirect("/login");
   } catch (err) {
     console.error(err);
     res.send("Error resetting password");
