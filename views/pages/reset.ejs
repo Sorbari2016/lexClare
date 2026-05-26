@@ -6,9 +6,10 @@
             <p class="recover-text">
                 Please enter the reset code or token sent to you and create a new password:
             </p>
-            <form action="/recover/enter-code" method="post" class="recover-form">
+
+            <form action="/recover/<%=locals.token ? token : 'enter-code'%>" method="post" class="recover-form">
                 <% if (!locals.token) { %>  
-                <label for="email">
+                <label for="reset_code">
                     Reset Code: *
                 </label>
                 <input
