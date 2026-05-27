@@ -18,12 +18,12 @@ import "./passport.js";
 // Configure dotenv
 dotenv.config();
 
+const app = express();
+const PORT = 3000;
+
 // Set up --dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-const app = express();
-const PORT = 3000;
 
 const saltRounds = 10; // number of times to run the hashing math
 
@@ -55,13 +55,6 @@ app.use(
   }),
 );
 
-// PASSPORT SETUP, after session
-// Initialize Passport authentication middleware
-app.use(passport.initialize());
-
-// Enable persistent login sessions
-app.use(passport.session());
-
 // Set transporter for nodemailer
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -70,6 +63,13 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
+
+// PASSPORT SETUP, after session
+// Initialize Passport authentication middleware
+app.use(passport.initialize());
+
+// Enable persistent login sessions
+app.use(passport.session());
 
 // Set up database
 const db = new pg.Client({
