@@ -29,7 +29,8 @@
             <div class="profile-btn dropdown">
                 <a class="btn btn-profile" role="button">
                     <img src="/image/user.png" alt="profile icon">  <!-- Absolute path here for the image -->
-                    <%=username %> ⏷
+                    <span class="profile-name"><%= username %></span>
+                    <span class="dropdown-arrow">⏷</span>
                 </a>
                 <ul class="dropdown-menu">
                     <li><a href="/profile"class="dropdown-item">Profile</a></li>

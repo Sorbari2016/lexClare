@@ -75,16 +75,42 @@ body {
   color: #e2e8f0;
 }
 
-.btn-login:hover,
-.btn-profile:hover {
+.btn-login:hover {
   background-color: #1e293b;
 }
 
 .btn-profile {
+  background-color: transparent;
+  border: 1px solid var(--border-light);
+  color: var(--text);
   font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: var(--radius-sm);
+  line-height: 1;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.btn-profile:hover {
+  background-color: var(--surface-hover);
+}
+
+.profile-name {
   display: flex;
   align-items: center;
-  padding: 10px 10px;
+}
+
+.dropdown-arrow {
+  font-size: 0.7rem;
+  opacity: 0.8;
+  display: flex;
+  align-items: center;
 }
 
 .btn-signup {
@@ -97,8 +123,11 @@ body {
 }
 
 .profile-btn img {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
 }
 
 /* Page Content */

@@ -16,6 +16,7 @@ body {
   display: flex;
   flex-direction: column;
 }
+
 * {
   margin: 0;
   padding: 0;
@@ -179,26 +180,30 @@ small {
 .dropdown-menu {
   display: none;
   position: absolute;
-  background: var(--surface);
+  background: var(--suface-hover);
+  border-top: 1px solid var(--border);
+  border-radius: 10px;
   margin: 0;
   padding: 0;
   list-style: none;
-  min-width: 180px;
+  min-width: 160px;
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
 }
 
-/* Links inside the dropdown */
+/* Links inside the dropdown, make menu appear */
 .dropdown-menu a {
-  color: black;
-  padding: 12px 16px;
+  color: var(--text);
+  padding: 10px 14px;
   text-decoration: none;
   display: block;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
 }
 
 /* Change color of dropdown links on hover */
 .dropdown-menu a:hover {
-  background-color: #ddd;
+  background-color: var(--accent);
 }
 
 /* Show the dropdown menu on hover */
@@ -214,48 +219,6 @@ small {
   padding: 0.5rem;
   font-size: 16px;
   border: none;
-}
-
-/* The container <div> - needed to position the dropdown content */
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-/* Dropdown Content (Hidden by Default) */
-.dropdown-menu {
-  display: none;
-  position: absolute;
-  background-color: #f1f1f1;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  z-index: 1;
-}
-
-/* Links inside the dropdown */
-.dropdown-menu a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-}
-
-/* Change color of dropdown links on hover */
-.dropdown-menu a:hover {
-  background-color: #ddd;
-}
-
-/* Show the dropdown menu on hover */
-.dropdown:hover .dropdown-menu {
-  display: block;
-}
-
-/* Change the background color of the dropdown button when the dropdown content is shown */
-.dropdown:hover .dropdown-btn {
-  background-color: darkgray;
 }
 
 /* HISTORY SECTION */
