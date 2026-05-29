@@ -1,5 +1,7 @@
 # LexClare
 
+**version 1.0.1**
+
 ## Description
 
 - A simple word search web app
@@ -26,13 +28,13 @@
 - **Search History** – Displays the last 5 distinct searches made by the logged-in user
 - Session management using cookies
 
-## Tools
+## Teck Stack
 
-- **Backend**: Node.js, Express.js, Postgres SQL
-- **Frontend**: EJS, JavaScript, CSS
-- **HTTP Client**: Axios
-- **Authentication**: Custom email/password + OAuth (Google & Facebook)
-- **Session Management**: Cookie-based sessions
+- **Backend:** Node.js, Express.js
+- **Database:** PostgreSQL
+- **Frontend:** EJS (Embedded JavaScript templates), Vanilla JavaScript, CSS3
+- **HTTP Client:** Axios (API communication)
+- **Authentication:** Passport.js (Custom & OAuth strategy integration)
 
 ## App View
 
@@ -65,3 +67,7 @@
 ### Profile page
 
 ![Screenshot of User profile](https://github.com/Sorbari2016/lexClare/blob/main/public/image/lexclare-profile.png)
+
+## Future Improvement
+
+- Sign up/ Login with X
