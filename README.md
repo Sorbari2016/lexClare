@@ -71,3 +71,4 @@
 ## Future Improvement
 
 - Sign up/ Login with X
+- Password pattern implementation
