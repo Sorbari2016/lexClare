@@ -5,7 +5,7 @@
 ## Description
 
 - A simple word search web app
-- The essence of this project is go gain mastery and understanding, working work with APIs in creating server-side logic
+- The essence of this project is to gain mastery and understanding in building server-side logic, working with APIs, implementing secure user authentication, and managing user sessions.
 
 ## Features
 
@@ -70,4 +70,6 @@
 
 ## Future Improvement
 
-- Sign up/ Login with X
+- Sign up/Login with X
+- Password pattern implementation
+- Allowing users to change profile pictures
