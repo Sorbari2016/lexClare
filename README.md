@@ -28,7 +28,7 @@
 - **Search History** – Displays the last 5 distinct searches made by the logged-in user
 - Session management using cookies
 
-## Teck Stack
+## Tech Stack
 
 - **Backend:** Node.js, Express.js
 - **Database:** PostgreSQL
