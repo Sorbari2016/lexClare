@@ -1,6 +1,6 @@
 {
   "name": "lexclare",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "## Description - A simple word search web app - The essence of this project is go gain mastery and understanding, working work with APIs in creating server-side logic",
   "main": "index.js",
   "type": "module",
